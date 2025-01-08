@@ -15,9 +15,7 @@
                     @endsession
 
                     <div id="notification">
-                        @foreach(auth()->user()->unreadNotifications as $notification)
-                            <div class="alert alert-success alert-dismissible fade show"><span><i class="fa fa-circle-check"></i>  {{ $notification->data['message'] }}</span></div>
-                        @endforeach
+
                     </div>
 
                     @if(!auth()->user()->is_admin)
@@ -51,6 +49,10 @@
                                 <th width="70px">ID</th>
                                 <th>Title</th>
                                 <th>Body</th>
+                                <th>Status</th>
+                                @if (auth()->user()->is_admin)
+                                <th>Action</th>
+                                @endif
                             </tr>
                         </thead>
                         <tbody>
@@ -59,6 +61,22 @@
                                     <td>{{ $post->id }}</td>
                                     <td>{{ $post->title }}</td>
                                     <td>{{ $post->body }}</td>
+                                    <td>
+                                       @if ($post->is_approved == 0)
+                                       <span class="badge badge-danger text-black">Not Approved</span>
+                                       @else
+                                       <span class="badge badge-success text-black">Approved</span>
+
+                                       @endif
+                                    </td>
+                                    @if (auth()->user()->is_admin)
+                                    <td>
+                                        @if ($post->is_approved == 0)
+                                        <a href="{{ route('posts.approved', $post->id) }}" class="btn btn-success">Approved</a>
+                                        @endif
+                                    </td>
+                                    @endif
+
                                 </tr>
                             @empty
                                 <tr>
@@ -80,7 +98,24 @@
     <script type="module">
             window.Echo.channel('posts')
                 .listen('.create', (data) => {
-                    console.log('Order status updated: ', data);
+                    console.log('Post status updated: ', data);
+                    var notificationCountElement = document.getElementById('notification-count')
+                    let currentCount = parseInt(notificationCountElement.textContent) || 0;
+                    notificationCountElement.textContent = currentCount + 1;
+                    var d1 = document.getElementById('notification');
+                    d1.insertAdjacentHTML('beforeend', '<div class="alert alert-success alert-dismissible fade show"><span><i class="fa fa-circle-check"></i>  '+data.message+'</span></div>');
+                });
+    </script>
+@endif
+@if(!auth()->user()->is_admin)
+    <script type="module">
+            window.Echo.channel('postApprove')
+                .listen('.approved', (data) => {
+                    console.log('Post status updated: ', data);
+                    var notificationCountElement = document.getElementById('notification-count')
+                    let currentCount = parseInt(notificationCountElement.textContent) || 0;
+                    notificationCountElement.textContent = currentCount + 1;
+
                     var d1 = document.getElementById('notification');
                     d1.insertAdjacentHTML('beforeend', '<div class="alert alert-success alert-dismissible fade show"><span><i class="fa fa-circle-check"></i>  '+data.message+'</span></div>');
                 });

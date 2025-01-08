@@ -15,7 +15,7 @@
 
     <!-- Scripts -->
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
-    
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
     @yield('script')
 </head>
@@ -54,6 +54,18 @@
                         @else
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ route('posts.index') }}">{{ __('Posts') }}</a>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+                                    {{__('Notification') }} <span class="badge badge-pill badge-danger text-black" id="notification-count">{{ count(auth()->user()->unreadNotifications) }}</span>
+                                </a>
+
+                                <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown" id="notification">
+                                    @foreach(auth()->user()->unreadNotifications as $notification)
+                                    <a class="dropdown-item alert alert-success alert-dismissible fade show"><span><i class="fa fa-circle-check"></i>  {{ $notification->data['message'] }}</span></a>
+                                @endforeach
+
+                                </div>
                             </li>
                             <li class="nav-item dropdown">
                                 <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
